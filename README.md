@@ -12,6 +12,10 @@ Each skill is a self-contained folder with:
 | Skill | Description |
 |---|---|
 | [gemini-transcribe](./gemini-transcribe/) | Transcribe or analyze audio/video files via Google Gemini API |
+| [video-transcript-downloader](./video-transcript-downloader/) | Download videos, audio, subtitles, and transcripts from YouTube and other sites (pairs well with gemini-transcribe) |
+| [trace-review](./trace-review/) | Execution-path tracing code review that demands concrete evidence for every judgment |
+| [conventional-commit](./conventional-commit/) | Draft, rewrite, and validate commit messages as Conventional Commits |
+| [prepare-chatgpt-pro-consult](./prepare-chatgpt-pro-consult/) | Pack a controlled engineering consult for ChatGPT Pro with baseline control |
 
 ## Installation
 

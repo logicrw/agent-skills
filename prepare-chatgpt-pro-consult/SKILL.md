@@ -1,0 +1,205 @@
+---
+name: prepare-chatgpt-pro-consult
+description: Prepare a compact engineering consult package for ChatGPT Pro or a similar remote web model when a project needs multi-file architecture analysis, roadmap planning, and patch design with baseline control.
+triggers: ["ChatGPT Pro consult", "prepare ChatGPT Pro", "send to ChatGPT Pro", "ChatGPT Pro refactor", "pack for ChatGPT", "/prepare-chatgpt-pro-consult"]
+---
+
+# prepare-chatgpt-pro-consult
+
+Hand off a problem to ChatGPT Pro on the web. The output is a controlled consult package — not a chat prompt. The package tells ChatGPT exactly what to read, what to produce, and how to avoid the most common failure modes (baseline drift, hallucinated APIs, untested patches).
+
+Do not skip the verify-then-iterate loop.
+
+## ChatGPT Pro Sandbox Capabilities (Verified 2026-04)
+
+- Public GitHub repository discovery works through web search and page open.
+- Public repository file reading works through browser pages for README, source files, and test trees.
+- Shell git access fails in the sandbox: `Could not resolve host: github.com`. No local checkout is available.
+- Local install, CLI execution, pytest, worktree creation, commit, push, and PR creation all fail because clone fails or shell DNS fails.
+- Ordinary shell subprocess execution works and captures stdout.
+- File artifacts persist across tool calls in `/mnt/data` within one session.
+- External documentation fetch and GitHub issue search work through the browser tool; shell `curl` to external hosts fails DNS.
+
+**Default to the zip path. Promote to live-GitHub only after a per-session probe (Phase 3).**
+
+## When to Use
+
+Use this skill for projects where a web model should act as an external engineering reviewer or planner across several modules. Good triggers: architecture redesign, multi-file refactor planning, competing technical options, roadmap design, migration planning, patch design needing a strict baseline, or any task where the current agent is stuck after multiple attempts.
+
+Do not use it as a one-shot chat prompt. The output is a controlled consult package plus a verification loop.
+
+## When NOT to Use
+
+- Single localized bug fixable in one more try
+- Small edits under five files
+- Tasks without a clear baseline
+- Private repos where the user cannot provide either access or a zip
+- Work that needs immediate real-time back-and-forth in the current agent
+
+## Deliverable: One Zip
+
+Build one zip named `{project}-consult-YYYYMMDD.zip`:
+
+```
+{project}-consult/
+├── README.md              # opening orders for ChatGPT
+├── BASELINE_COMMIT        # git rev-parse HEAD anchor
+├── PROBLEM.md             # what's broken, what's been tried, what failed
+├── HOW-TO-WORK.md         # working rules + anti-baseline-drift
+├── CONSTRAINTS.md         # budget / runtime / dependency rules / red lines (if applicable)
+└── code/                  # relevant source files or repomix bundle
+    └── code-bundle.xml
+```
+
+Templates: `templates/README-template.md` and `templates/HOW-TO-WORK-template.md`. Keep in English. Never localize.
+
+## Workflow (5 Phases)
+
+### Phase 1 — Discovery
+
+Collect before writing anything:
+
+- **User's original problem statement** — preserve exact quotes, do not paraphrase
+- **Specific pain points with raw evidence** — error messages, failing test names, logs, screenshots. Vague complaints are not actionable.
+- **What's been tried** — every approach the current agent attempted, with exact reasoning for why each failed. This prevents ChatGPT from repeating dead ends.
+- **Hard constraints** — dependency versions, deployment environment, time/budget limits, interfaces that cannot change, red lines
+- **Desired output format** — patches? architecture doc? comparison table? roadmap? Be explicit.
+- **Acceptance checks** — convert vague goals into concrete pass/fail criteria
+
+If the user can't articulate the problem clearly, extract it from the current session's error logs and failed attempts.
+
+### Phase 2 — Build the Package
+
+1. **Anchor the baseline**:
+   ```bash
+   git rev-parse HEAD > BASELINE_COMMIT
+   git log -1 --format='%H%n%ai%n%s%n%an' >> BASELINE_COMMIT
+   git status --short >> BASELINE_COMMIT
+   ```
+
+2. **Collect code** — only what's relevant to the problem:
+   ```bash
+   # Option A: repomix for a focused bundle
+   repomix --include "src/relevant_module/**" -o code/code-bundle.xml
+
+   # Option B: copy individual files
+   mkdir -p code && cp src/foo.py src/bar.py code/
+   ```
+   Record absolute paths from the repository root. Do NOT include secrets, local usernames, tokens, `.env`, cache directories, or generated binaries. Do NOT pack the entire repo — every irrelevant file dilutes attention.
+
+3. **Write PROBLEM.md** — the single most important file:
+   - What the problem is (specific, with evidence)
+   - Current state (what works, what doesn't)
+   - Each failed approach with exact error or reasoning
+   - What you want ChatGPT to produce (explicit format)
+   - File map: which files in `code/` and what each does
+   - Acceptance checks from Phase 1
+
+4. **Write CONSTRAINTS.md** (if applicable):
+   - Dependency versions, runtime environment, budget, red lines, stable interfaces
+
+5. **Fill templates**: `README-template.md` → `README.md`, `HOW-TO-WORK-template.md` → `HOW-TO-WORK.md`. Fill placeholders.
+
+6. **Zip**:
+   ```bash
+   cd /tmp
+   zip -r {project}-consult-YYYYMMDD.zip {project}-consult/ \
+     -x "*.DS_Store" -x "*__pycache__*" -x "*.pyc"
+   ```
+
+### Phase 3 — Engage ChatGPT Pro
+
+First test the model session with this probe:
+
+```bash
+git clone <repo-url>
+cd <repo>
+git rev-parse HEAD
+python3 -m pip install -e '.[dev]'
+pytest -q
+```
+
+Side effects: these commands create a local checkout and local install artifacts. They do not modify the remote repository.
+
+**If the probe succeeds**: prefer the live GitHub path. Require ChatGPT Pro to treat the cloned HEAD as source of truth, compare it with `BASELINE_COMMIT`, and write every patch against the live SHA.
+
+**If clone, install, or tests fail**: use the zip path. Upload the consult package and tell ChatGPT Pro to base all patches on `BASELINE_COMMIT`. Any claim such as "tests passed" is forbidden unless the exact command ran in that same session. If only browser reading works, ask for design, risk analysis, and patch drafts with verification recipes, then send the result to an independent local reviewer.
+
+Opening message for zip path:
+
+> Read README.md first. Treat BASELINE_COMMIT as ground truth. Build every patch against that SHA. Do not claim "tests passed" without a reproducible command run in this session. Start working.
+
+### Phase 4 — Verify v1
+
+Never apply v1 directly. The reviewer (you or another agent) must:
+
+- Run `git apply --check` on every patch against the BASELINE_COMMIT SHA
+- Grep every imported symbol, CLI flag, env var against current HEAD
+- Run every test ChatGPT claims passed
+- Check migration safety (forward, rollback, dry-run)
+- Report exact failures with evidence
+
+### Phase 5 — Iterate v2
+
+Return the review report to the **same** ChatGPT Pro conversation — context is expensive, do not start a new one. Require a revised package against the current SHA. Apply only reviewer-approved patches, one commit per patch, with a clear rollback path.
+
+## Anti-Baseline-Drift
+
+Every patch must start with:
+
+```text
+# Based on commit SHA: <40-char SHA>
+```
+
+Every patch must include this verification recipe:
+
+```bash
+git checkout <SHA>
+git apply --check patches/<name>.diff
+```
+
+Before writing a patch, verify every import, function, CLI flag, environment variable, and file path against the baseline. Use `grep`, `rg`, or direct file reads. If a symbol is absent, add it in the same patch before using it.
+
+For semantic changes, list all downstream callers and readers. For migrations, provide forward, rollback, dry-run, integrity checks, and expected data loss status. For tests, include the exact command, commit SHA, and first stdout lines. A statement without reproducible evidence is treated as unverified.
+
+## Sub-Agent Briefs
+
+When building the package, these roles can be dispatched in parallel:
+
+**Bug investigator**: write problem statement, system context, known defects, evidence samples, and a focused code bundle for concrete failures.
+
+**Architecture researcher**: research candidates from primary sources, summarize tradeoffs, map them to project constraints, and write selection questions.
+
+**Style agent**: collect real user output samples, extract hard style rules. Samples override prose rules when they conflict.
+
+**Package agent**: assemble the zip, verify required files, exclude secrets, and record the baseline.
+
+**Reviewer agent**: perform read-only review. Run `git apply --check`, verify references, rerun claimed tests, and report exact failures. Do not edit source.
+
+## No-Filler Rules for ChatGPT
+
+Write these into `HOW-TO-WORK.md`:
+
+Banned: "I would be happy to help" / "I suggest" / "perhaps" / "In summary" / "to conclude"
+Required: "Do X because Y, evidence Z" / "Choose A over B; A wins on N dimensions"
+
+Do NOT wait for confirmation. Drive forward.
+
+## Scaling Deliverables by Task Type
+
+Tell ChatGPT what to produce in PROBLEM.md:
+
+- **Bug fix**: patches + tests + verification recipe
+- **Architecture decision**: comparison table (≥3 options) + recommendation with evidence + migration sketch
+- **Refactor**: patches + tests + migration plan + rollback + decision log
+- **Large redesign**: all above + architecture diagram (Mermaid) + risk assessment + roadmap
+
+## Upgrade Path
+
+Rerun the sandbox capability probes after any major ChatGPT Pro, browser-tool, or sandbox change. Promote the live GitHub path only after clone, dependency install, CLI help, and pytest are verified in that session. Promote PR-based handoff only after branch creation, push, and PR creation are verified with explicit write authorization.
+
+## Maintenance
+
+- `last_validated_at: 2026-04`
+- Revalidate sandbox capabilities every three months or after a major model/tool release
+- Templates change only when the deliverable contract changes
