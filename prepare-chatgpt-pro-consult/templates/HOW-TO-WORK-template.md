@@ -87,6 +87,27 @@ Include a THINKING section in your delivery:
 
 Do NOT pretend confidence. Show the real hesitation.
 
+## 8. Deep research + patch delivery
+
+For broad product, architecture, or system-quality work, do not stop at a report.
+
+Run this workflow:
+
+1. Reconstruct the current system from repository facts.
+2. Trace code/data flow through concrete files, functions, tables, and user-facing surfaces.
+3. Research external benchmarks when product or architecture quality depends on outside patterns.
+4. Define the missing decision model or rubric explicitly.
+5. Provide SQL/probes/commands for validating claims against local data when runtime state is unavailable.
+6. Self-critique your plan before finalizing it.
+7. Deliver concrete implementation artifacts.
+
+Implementation delivery modes:
+
+- If you can write the repository, create a branch, commit the first low-risk patch, and report branch name, commit SHA, tests, and PR description draft.
+- If you cannot write the repository, output unified diffs. Each diff must be checkable with `git apply --check` and must include tests, verification commands, runtime-vs-shadow behavior, migration/backfill notes, and rollback.
+
+Do NOT provide only pseudocode or an implementation plan when code was requested.
+
 ## One-line principle
 
 > If your delivery makes the user think "I could have written this myself", you failed.

@@ -1,7 +1,7 @@
 ---
 name: prepare-chatgpt-pro-consult
-description: Prepare a compact engineering consult package for ChatGPT Pro or a similar remote web model when a project needs multi-file architecture analysis, roadmap planning, and patch design with baseline control.
-triggers: ["ChatGPT Pro consult", "prepare ChatGPT Pro", "send to ChatGPT Pro", "ChatGPT Pro refactor", "pack for ChatGPT", "/prepare-chatgpt-pro-consult"]
+description: Prepare a controlled engineering consult package for ChatGPT Pro or a similar remote web model when a project needs multi-file architecture analysis, deep research, roadmap planning, and concrete patch delivery with baseline control.
+triggers: ["ChatGPT Pro consult", "prepare ChatGPT Pro", "send to ChatGPT Pro", "ChatGPT Pro refactor", "ChatGPT Pro deep research", "ChatGPT Pro patch", "pack for ChatGPT", "/prepare-chatgpt-pro-consult"]
 ---
 
 # prepare-chatgpt-pro-consult
@@ -9,6 +9,22 @@ triggers: ["ChatGPT Pro consult", "prepare ChatGPT Pro", "send to ChatGPT Pro", 
 Hand off a problem to ChatGPT Pro on the web. The output is a controlled consult package — not a chat prompt. The package tells ChatGPT exactly what to read, what to produce, and how to avoid the most common failure modes (baseline drift, hallucinated APIs, untested patches).
 
 Do not skip the verify-then-iterate loop.
+
+## Default Standard After 2026-05-11
+
+When the user wants ChatGPT Pro to "do more", "research deeply", "work automatically", "provide concrete improvements", or review a broad product/architecture problem, default to a **deep research + patch delivery consult**, not a shallow advisory prompt.
+
+The consult should force ChatGPT Pro to:
+
+1. Reconstruct the current system from repository facts before proposing changes.
+2. Trace code/data flow through concrete files, functions, tables, and user-facing surfaces.
+3. Research external benchmarks when product or architecture quality depends on the broader market.
+4. Define the missing decision model or rubric explicitly, instead of only improving wording.
+5. Provide SQL/probes/commands for validating claims against local data when the remote model cannot access runtime state.
+6. Self-critique the chosen plan before finalizing it.
+7. Deliver concrete implementation artifacts: either a branch/commit/PR draft when it can write the repo, or `git apply --check`-able unified diffs when it cannot.
+
+Do not accept a final ChatGPT Pro deliverable that is only a report when the user's real goal requires implementation. Require at least the first low-risk patch to be concrete code with tests and rollback.
 
 ## ChatGPT Pro Sandbox Capabilities (Verified 2026-04)
 
@@ -43,8 +59,10 @@ Build one zip named `{project}-consult-YYYYMMDD.zip`:
 ```
 {project}-consult/
 ├── README.md              # opening orders for ChatGPT
+├── INDEX.md               # reading priority and required order
 ├── BASELINE_COMMIT        # git rev-parse HEAD anchor
 ├── PROBLEM.md             # what's broken, what's been tried, what failed
+├── DELIVERABLES.md        # exact output contract and patch requirements
 ├── HOW-TO-WORK.md         # working rules + anti-baseline-drift
 ├── CONSTRAINTS.md         # budget / runtime / dependency rules / red lines (if applicable)
 └── code/                  # relevant source files or repomix bundle
@@ -67,6 +85,8 @@ Collect before writing anything:
 - **Acceptance checks** — convert vague goals into concrete pass/fail criteria
 
 If the user can't articulate the problem clearly, extract it from the current session's error logs and failed attempts.
+
+For broad redesign, product-quality, architecture-quality, or "make it actually useful" requests, use the deep research + patch delivery output contract. Do not let the package stop at "recommendations"; make the desired output a report plus concrete code artifacts.
 
 ### Phase 2 — Build the Package
 
@@ -95,12 +115,23 @@ If the user can't articulate the problem clearly, extract it from the current se
    - File map: which files in `code/` and what each does
    - Acceptance checks from Phase 1
 
-4. **Write CONSTRAINTS.md** (if applicable):
+4. **Write INDEX.md**:
+   - P0: must-read authority docs
+   - P1: source files to trace
+   - P2: tests, fixtures, docs, and optional references
+
+5. **Write DELIVERABLES.md**:
+   - Required report sections
+   - Required implementation artifacts
+   - Patch format, branch/commit expectations, tests, rollback, and acceptance checks
+   - If the remote model cannot edit the repo, require unified diffs that pass `git apply --check`
+
+6. **Write CONSTRAINTS.md** (if applicable):
    - Dependency versions, runtime environment, budget, red lines, stable interfaces
 
-5. **Fill templates**: `README-template.md` → `README.md`, `HOW-TO-WORK-template.md` → `HOW-TO-WORK.md`. Fill placeholders.
+7. **Fill templates**: `README-template.md` → `README.md`, `HOW-TO-WORK-template.md` → `HOW-TO-WORK.md`. Fill placeholders.
 
-6. **Zip**:
+8. **Zip**:
    ```bash
    cd /tmp
    zip -r {project}-consult-YYYYMMDD.zip {project}-consult/ \
@@ -128,6 +159,22 @@ Side effects: these commands create a local checkout and local install artifacts
 Opening message for zip path:
 
 > Read README.md first. Treat BASELINE_COMMIT as ground truth. Build every patch against that SHA. Do not claim "tests passed" without a reproducible command run in this session. Start working.
+
+Opening message for live-private-GitHub path:
+
+```text
+Please access this private repository:
+
+<repo-url>
+
+First read the root handoff prompt or consult package docs. Confirm:
+- repository access
+- current HEAD
+- baseline SHA
+- files you will read first
+
+Then execute the full deep research + patch delivery workflow. Do not stop at recommendations. If you can write the repository, create a branch and commit the first low-risk patch. If you cannot write the repository, output unified diffs that can be saved and checked with `git apply --check`.
+```
 
 ### Phase 4 — Verify v1
 
@@ -193,6 +240,45 @@ Tell ChatGPT what to produce in PROBLEM.md:
 - **Architecture decision**: comparison table (≥3 options) + recommendation with evidence + migration sketch
 - **Refactor**: patches + tests + migration plan + rollback + decision log
 - **Large redesign**: all above + architecture diagram (Mermaid) + risk assessment + roadmap
+- **Deep product/system redesign**: seven-round protocol:
+  1. repository truth reconstruction
+  2. code/data-flow trace
+  3. external benchmark research
+  4. explicit decision model/rubric
+  5. SQL/probe validation plan
+  6. self-critique and tradeoff reconciliation
+  7. concrete patch delivery
+
+For deep product/system redesign, require the first implementation patch to be code, not pseudocode. A good first patch is usually a low-risk deterministic layer behind a feature flag or shadow path, plus tests and one user-facing readout.
+
+## Patch Delivery Contract
+
+When implementation is required, ChatGPT Pro must choose one delivery mode:
+
+**Mode A — branch/commit/PR draft**
+
+- Create a branch with a descriptive name.
+- Commit the first low-risk patch.
+- Report branch name, commit SHA, changed files, tests run, and PR description draft.
+
+**Mode B — unified diffs**
+
+- Output one diff per PR-sized patch.
+- Each diff starts with:
+  ```text
+  # Based on commit SHA: <40-char SHA>
+  # Patch: <short-name>
+  # Intent: <why this patch exists>
+  # Verification: <commands to run after applying>
+  ```
+- Every diff must be checkable with:
+  ```bash
+  git checkout <SHA>
+  git apply --check patches/<name>.diff
+  ```
+- Include tests, smoke commands, runtime-vs-shadow behavior, migration/backfill notes, and exact rollback.
+
+Reject deliverables that contain only prose, pseudocode, or "implementation left to the local agent" when the user asked for concrete improvements.
 
 ## Upgrade Path
 
