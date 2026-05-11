@@ -95,11 +95,21 @@ Run this workflow:
 
 1. Reconstruct the current system from repository facts.
 2. Trace code/data flow through concrete files, functions, tables, and user-facing surfaces.
-3. Research external benchmarks when product or architecture quality depends on outside patterns.
-4. Define the missing decision model or rubric explicitly.
-5. Provide SQL/probes/commands for validating claims against local data when runtime state is unavailable.
-6. Self-critique your plan before finalizing it.
-7. Deliver concrete implementation artifacts.
+3. Run independent analysis lanes, then synthesize them critically.
+4. Research external benchmarks when product or architecture quality depends on outside patterns.
+5. Define the missing decision model or rubric explicitly.
+6. Provide SQL/probes/commands for validating claims against local data when runtime state is unavailable.
+7. Self-critique your plan before finalizing it.
+8. Deliver concrete implementation artifacts.
+
+Independent lanes:
+
+- Product/user lane
+- Architecture/data-flow lane
+- Implementation/test lane
+- Adversarial/risk lane
+
+Keep the lanes independent. In the synthesis, identify agreement, disagreement, missing evidence, and the strongest minority objection. Do NOT treat majority agreement as proof.
 
 Implementation delivery modes:
 

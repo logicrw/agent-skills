@@ -19,12 +19,15 @@ The consult should force ChatGPT Pro to:
 1. Reconstruct the current system from repository facts before proposing changes.
 2. Trace code/data flow through concrete files, functions, tables, and user-facing surfaces.
 3. Research external benchmarks when product or architecture quality depends on the broader market.
-4. Define the missing decision model or rubric explicitly, instead of only improving wording.
-5. Provide SQL/probes/commands for validating claims against local data when the remote model cannot access runtime state.
-6. Self-critique the chosen plan before finalizing it.
-7. Deliver concrete implementation artifacts: either a branch/commit/PR draft when it can write the repo, or `git apply --check`-able unified diffs when it cannot.
+4. Run independent analysis lanes before synthesis when the problem is complex or high-stakes.
+5. Define the missing decision model or rubric explicitly, instead of only improving wording.
+6. Provide SQL/probes/commands for validating claims against local data when the remote model cannot access runtime state.
+7. Self-critique the chosen plan before finalizing it.
+8. Deliver concrete implementation artifacts: either a branch/commit/PR draft when it can write the repo, or `git apply --check`-able unified diffs when it cannot.
 
 Do not accept a final ChatGPT Pro deliverable that is only a report when the user's real goal requires implementation. Require at least the first low-risk patch to be concrete code with tests and rollback.
+
+For complex consults, borrow the HeavySkill pattern: ask for several independent reasoning trajectories, then a deliberate synthesis. Use different lenses such as product/user workflow, architecture/data flow, implementation/testability, and adversarial risk. The synthesis must critique the lanes; it must not simply vote or concatenate them.
 
 ## ChatGPT Pro Sandbox Capabilities (Verified 2026-04)
 
@@ -123,6 +126,7 @@ For broad redesign, product-quality, architecture-quality, or "make it actually 
 5. **Write DELIVERABLES.md**:
    - Required report sections
    - Required implementation artifacts
+   - Independent analysis lanes and synthesis requirements for complex consults
    - Patch format, branch/commit expectations, tests, rollback, and acceptance checks
    - If the remote model cannot edit the repo, require unified diffs that pass `git apply --check`
 
@@ -243,13 +247,25 @@ Tell ChatGPT what to produce in PROBLEM.md:
 - **Deep product/system redesign**: seven-round protocol:
   1. repository truth reconstruction
   2. code/data-flow trace
-  3. external benchmark research
-  4. explicit decision model/rubric
-  5. SQL/probe validation plan
-  6. self-critique and tradeoff reconciliation
-  7. concrete patch delivery
+  3. independent analysis lanes plus deliberate synthesis
+  4. external benchmark research
+  5. explicit decision model/rubric
+  6. SQL/probe validation plan
+  7. self-critique and tradeoff reconciliation
+  8. concrete patch delivery
 
 For deep product/system redesign, require the first implementation patch to be code, not pseudocode. A good first patch is usually a low-risk deterministic layer behind a feature flag or shadow path, plus tests and one user-facing readout.
+
+## Independent Analysis Lanes
+
+For hard consults, require three to five independent lanes before the final recommendation. Lanes should not see or depend on one another's conclusions. Good default lanes:
+
+- **Product/user lane**: what the user actually needs, where current output fails, and what the target experience should make obvious.
+- **Architecture/data-flow lane**: current modules, tables, data contracts, side effects, and likely fracture points.
+- **Implementation/test lane**: smallest patch sequence, tests, migration/backfill, rollback, and verification commands.
+- **Adversarial/risk lane**: how the proposed plan can fail, what it could overfit, what it could silently break, and what evidence would refute it.
+
+The synthesis step must identify agreement, disagreement, missing evidence, and the strongest minority objection. Majority agreement is not proof. A minority lane with better evidence can override the majority.
 
 ## Patch Delivery Contract
 
