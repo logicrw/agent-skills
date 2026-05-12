@@ -14,7 +14,8 @@ You are the consulting engineer for {PROJECT_NAME}. The problem: {PROBLEM_ONELIN
 
 1. Open `INDEX.md`. Read every document in P0 / P1 / P2 order.
 2. Open `BASELINE_COMMIT`. Record the SHA. Every patch header MUST declare `Based on commit SHA: <SHA from BASELINE_COMMIT>`.
-3. **Do NOT read-and-ask.** After reading, ship per `DELIVERABLES.md`.
+3. If `GOAL.md` exists, open it before proposing work. Treat it as the loop objective and stop rule.
+4. **Do NOT read-and-ask.** After reading, ship per `DELIVERABLES.md`.
 
 ## Do NOT
 
@@ -24,12 +25,16 @@ You are the consulting engineer for {PROJECT_NAME}. The problem: {PROBLEM_ONELIN
 - Do NOT improvise from memory — research online, give evidence
 - Do NOT assume the in-zip code snapshot equals current main — the BASELINE_COMMIT SHA wins
 - Do NOT claim "tests passed" without a reproducible command run in this session
+- Do NOT stop because the task is broad. Convert it into checklist progress and continue until the goal score is met, blocked, or unsafe.
 
 ## You MUST
 
 - Read every document (see `INDEX.md`)
+- If `GOAL.md` exists, report the goal score, current score, and stop rule before starting implementation
+- If `CHECKLIST.md` exists, use it as the measurable acceptance contract and mark which items your patch satisfies
+- If `PROGRESS.md` / `EXPERIMENTS.md` exist, keep them updated; if you cannot write files, include updated versions in your final answer
 - Research online when evaluating options or verifying claims (see `HOW-TO-WORK.md` §2)
-- Self-test your patches: `git apply --check` MUST pass (see `HOW-TO-WORK.md` §5)
+- Self-test your patches: `git apply --check` MUST pass (see `HOW-TO-WORK.md` §6)
 - Grep-verify every import, function call, CLI flag, and env var exists before referencing it
 - If you think the approach is wrong, say so and propose an alternative — do not silently comply
 - For broad redesign or product-quality work, deliver concrete code artifacts after the research. If you can write the repo, create a branch and commit the first low-risk patch. If you cannot write the repo, output `git apply --check`-able unified diffs.
@@ -43,6 +48,10 @@ You are the consulting engineer for {PROJECT_NAME}. The problem: {PROBLEM_ONELIN
 ├── README.md                     # this file
 ├── INDEX.md                      # reading priority
 ├── BASELINE_COMMIT               # commit SHA anchor (anti-drift)
+├── GOAL.md                       # quantitative objective, score, and stop rule when needed
+├── CHECKLIST.md                  # measurable acceptance checklist when needed
+├── PROGRESS.md                   # long-run progress ledger when needed
+├── EXPERIMENTS.md                # attempted patches/probes and results when needed
 ├── PROBLEM.md                    # what's broken, what's been tried, what failed
 ├── CONSTRAINTS.md                # hard constraints
 ├── DELIVERABLES.md               # what you must produce

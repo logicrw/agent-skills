@@ -25,10 +25,46 @@ The consult should force ChatGPT Pro to:
 7. Self-critique the chosen plan before finalizing it.
 8. Deliver concrete implementation artifacts: either a branch/commit/PR draft when it can write the repo, or `git apply --check`-able unified diffs when it cannot.
 9. Deliver a visual HTML companion artifact for complex reviews, so the user can scan architecture, findings, patch plan, and risks faster than in a long Markdown report.
+10. Convert broad goals into measurable completion criteria with a checklist and stop rule.
+11. Use the fastest valid feedback loop available: narrow tests, smoke commands, probes, fixture runs, or explicit local replay commands.
+12. Maintain long-run progress ledgers so a multi-hour consult can continue coherently instead of restarting or forgetting failed attempts.
 
 Do not accept a final ChatGPT Pro deliverable that is only a report when the user's real goal requires implementation. Require at least the first low-risk patch to be concrete code with tests and rollback.
 
 For complex consults, borrow the HeavySkill pattern: ask for several independent reasoning trajectories, then a deliberate synthesis. Use different lenses such as product/user workflow, architecture/data flow, implementation/testability, and adversarial risk. The synthesis must critique the lanes; it must not simply vote or concatenate them.
+
+## Long-Run Goal Contract
+
+When the user wants to "maximize ChatGPT Pro", "let it work automatically", "run for a long time", or "keep going until done", turn the consult into a goal loop instead of a one-shot review.
+
+Every long-run consult package must include:
+
+- `GOAL.md`: one quantitative objective, measurable acceptance checks, non-goals, red lines, and explicit stop rules.
+- `CHECKLIST.md`: a checklist that turns subjective quality into countable items. The remote model should mark items done as it satisfies them.
+- `PROGRESS.md`: a compact status ledger with current SHA, current score, completed checks, failed checks, blockers, and next action.
+- `EXPERIMENTS.md` or `ATTEMPTS.md`: one row per patch, probe, design variant, or rejected path, with result and reason.
+
+The goal must answer:
+
+1. What score means "done"?
+2. Which command, probe, or checklist computes that score?
+3. How fast can the model get feedback after each patch or recommendation?
+4. What is forbidden even if it would improve the score?
+5. When should the model stop because the goal is achieved, blocked, or unsafe?
+
+Good examples:
+
+- "Reduce top-10 action queue duplicates by 50% in the fixture probe while keeping all unit tests green and readiness unchanged."
+- "Produce a patch that makes the first dashboard viewport show the top 3-5 actionable groups, with tests for score components, stale feedback filtering, and readiness isolation."
+- "Convert 200 formatting rules into `CHECKLIST.md`, then edit until 200/200 are checked without changing technical content."
+
+Bad examples:
+
+- "Make the code better."
+- "Think harder."
+- "Improve readability."
+
+If the remote model cannot run tests, the feedback loop must be a local replay contract: exact commands, expected outputs, SQL probes, and a checklist the local agent can score. Do not let "cannot run tests" become permission for vague analysis.
 
 ## Lessons from Multi-Round Code Consults
 
@@ -108,6 +144,10 @@ Build one zip named `{project}-consult-YYYYMMDD.zip`:
 ├── README.md              # opening orders for ChatGPT
 ├── INDEX.md               # reading priority and required order
 ├── BASELINE_COMMIT        # git rev-parse HEAD anchor
+├── GOAL.md                # quantitative objective, score, stop rules
+├── CHECKLIST.md           # countable acceptance checklist
+├── PROGRESS.md            # long-run status ledger
+├── EXPERIMENTS.md         # attempted patches/probes and results
 ├── PROBLEM.md             # what's broken, what's been tried, what failed
 ├── DELIVERABLES.md        # exact output contract and patch requirements
 ├── HOW-TO-WORK.md         # working rules + anti-baseline-drift
@@ -118,9 +158,9 @@ Build one zip named `{project}-consult-YYYYMMDD.zip`:
 
 For complex product, architecture, or code-review consults, require ChatGPT Pro to produce a standalone `review.html` companion artifact in addition to the Markdown/report output. The HTML is for fast reading and sharing; it does not replace patches, tests, Markdown findings, or verification evidence.
 
-Templates: `templates/README-template.md` and `templates/HOW-TO-WORK-template.md`. Keep in English. Never localize.
+Templates: `templates/README-template.md`, `templates/HOW-TO-WORK-template.md`, `templates/GOAL-template.md`, `templates/CHECKLIST-template.md`, `templates/PROGRESS-template.md`, and `templates/EXPERIMENTS-template.md`. Keep in English. Never localize.
 
-## Workflow (5 Phases)
+## Workflow (6 Phases)
 
 ### Phase 1 — Discovery
 
@@ -132,6 +172,9 @@ Collect before writing anything:
 - **Hard constraints** — dependency versions, deployment environment, time/budget limits, interfaces that cannot change, red lines
 - **Desired output format** — patches? architecture doc? comparison table? roadmap? Be explicit.
 - **Acceptance checks** — convert vague goals into concrete pass/fail criteria
+- **Goal score** — define what numeric/checklist state means complete
+- **Feedback loop** — identify the fastest valid command, probe, fixture, or checklist the remote model can use after every change
+- **Progress ledgers** — decide whether the package needs `GOAL.md`, `CHECKLIST.md`, `PROGRESS.md`, and `EXPERIMENTS.md`
 
 If the user can't articulate the problem clearly, extract it from the current session's error logs and failed attempts.
 
@@ -164,25 +207,32 @@ For broad redesign, product-quality, architecture-quality, or "make it actually 
    - File map: which files in `code/` and what each does
    - Acceptance checks from Phase 1
 
-4. **Write INDEX.md**:
+4. **Write long-run goal files when the task is broad or open-ended**:
+   - `GOAL.md`: objective, score, stop rules, red lines, feedback command.
+   - `CHECKLIST.md`: every acceptance check as a checkbox, grouped by correctness, user value, tests, safety, and verification.
+   - `PROGRESS.md`: initialized with current score, current SHA, and next action.
+   - `EXPERIMENTS.md`: initialized with a table for attempts, result, evidence, and decision.
+
+5. **Write INDEX.md**:
    - P0: must-read authority docs
    - P1: source files to trace
    - P2: tests, fixtures, docs, and optional references
 
-5. **Write DELIVERABLES.md**:
+6. **Write DELIVERABLES.md**:
    - Required report sections
    - Required implementation artifacts
    - Independent analysis lanes and synthesis requirements for complex consults
    - Patch format, branch/commit expectations, tests, rollback, and acceptance checks
    - If the remote model cannot edit the repo, require unified diffs that pass `git apply --check`
    - For complex consults, require a standalone `review.html` companion artifact with visual summary, code/data-flow diagram, ranked findings, patch plan, risk matrix, and verification checklist
+   - For long-run goals, require updated `CHECKLIST.md`, `PROGRESS.md`, and `EXPERIMENTS.md` content in the final answer when the model cannot write files.
 
-6. **Write CONSTRAINTS.md** (if applicable):
+7. **Write CONSTRAINTS.md** (if applicable):
    - Dependency versions, runtime environment, budget, red lines, stable interfaces
 
-7. **Fill templates**: `README-template.md` → `README.md`, `HOW-TO-WORK-template.md` → `HOW-TO-WORK.md`. Fill placeholders.
+8. **Fill templates**: `README-template.md` → `README.md`, `HOW-TO-WORK-template.md` → `HOW-TO-WORK.md`. Fill placeholders.
 
-8. **Zip**:
+9. **Zip**:
    ```bash
    cd /tmp
    zip -r {project}-consult-YYYYMMDD.zip {project}-consult/ \
@@ -225,6 +275,12 @@ First read the root handoff prompt or consult package docs. Confirm:
 - files you will read first
 
 Then execute the full deep research + patch delivery workflow. Do not stop at recommendations. If you can write the repository, create a branch and commit the first low-risk patch. If you cannot write the repository, output unified diffs that can be saved and checked with `git apply --check`.
+```
+
+For long-run goals, append:
+
+```text
+Treat GOAL.md as the loop objective. Keep working until CHECKLIST.md is complete, the score in GOAL.md is met, or a blocker in GOAL.md requires stopping. After each patch/probe, update PROGRESS.md and EXPERIMENTS.md. If you cannot write files, include updated versions of those ledgers in your final answer.
 ```
 
 ### Phase 4 — Verify v1
@@ -327,6 +383,7 @@ Tell ChatGPT what to produce in PROBLEM.md:
   7. self-critique and tradeoff reconciliation
   8. concrete patch delivery
   9. standalone HTML companion artifact for fast scan and sharing
+- **Long-running goal consult**: all above + `GOAL.md`, `CHECKLIST.md`, `PROGRESS.md`, `EXPERIMENTS.md`, tight feedback command, and explicit stop rule
 
 For deep product/system redesign, require the first implementation patch to be code, not pseudocode. A good first patch is usually a low-risk deterministic layer behind a feature flag or shadow path, plus tests and one user-facing readout.
 

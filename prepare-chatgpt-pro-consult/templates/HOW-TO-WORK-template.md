@@ -57,7 +57,31 @@ These rules exist because the #1 failure mode is patches generated against imagi
 
 **4.6** Every "X passed" claim must include: full command, first 20 lines of stdout, commit SHA. Do NOT write "35 passed" without proof.
 
-## 5. Self-test
+## 5. Goal loop
+
+If `GOAL.md` exists, it is your loop objective.
+
+Before implementation, state:
+- target score or checklist completion threshold
+- current score if known
+- fastest feedback command/probe/checklist
+- stop rules
+- red lines that cannot be crossed to improve the score
+
+After each patch, probe, or major recommendation:
+- run the fastest valid feedback loop available
+- update `CHECKLIST.md` items that are now satisfied
+- append `PROGRESS.md` with current score, completed checks, blockers, and next action
+- append `EXPERIMENTS.md` with what changed, result, evidence, and whether to keep/reject
+
+Stop only when:
+- the goal score is met and verification evidence is attached
+- a blocker listed in `GOAL.md` prevents meaningful progress
+- the next step would cross a red line
+
+If you cannot write files, include updated `CHECKLIST.md`, `PROGRESS.md`, and `EXPERIMENTS.md` sections in your final answer.
+
+## 6. Self-test
 
 Apply your patches in the sandbox if possible. At minimum:
 - `git apply --check` on every patch
@@ -65,7 +89,7 @@ Apply your patches in the sandbox if possible. At minimum:
 
 If you cannot run real tests, write the assumed input/output table so the user can replay your reasoning.
 
-## 6. No filler
+## 7. No filler
 
 Banned:
 - "I would be happy to help..." / "I hope this helps" / "best wishes"
@@ -77,7 +101,7 @@ Required:
 - "Choose A over B; A wins on N dimensions (list them)"
 - "Next step: run `<exact command>`"
 
-## 7. Show your reasoning
+## 8. Show your reasoning
 
 Include a THINKING section in your delivery:
 - Options you considered (at least 3 for significant decisions)
@@ -87,7 +111,7 @@ Include a THINKING section in your delivery:
 
 Do NOT pretend confidence. Show the real hesitation.
 
-## 8. Deep research + patch delivery
+## 9. Deep research + patch delivery
 
 For broad product, architecture, or system-quality work, do not stop at a report.
 
@@ -119,7 +143,7 @@ Implementation delivery modes:
 
 Do NOT provide only pseudocode or an implementation plan when code was requested.
 
-## 9. HTML companion artifact
+## 10. HTML companion artifact
 
 For complex reviews, produce a standalone `review.html` after the normal Markdown/report output.
 
