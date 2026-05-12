@@ -149,6 +149,9 @@ For complex reviews, produce a standalone `review.html` after the normal Markdow
 
 Requirements:
 - single file, inline CSS and SVG, no remote assets, no build step
+- user-facing text must use the user's preferred language; if the user is writing in Chinese, use Chinese for the HTML title, section headings, cards, findings, rationale, risks, and next actions
+- keep code identifiers, file paths, commands, commit SHAs, API names, and diff headers unchanged
+- visually designed, not a raw Markdown dump: strong first screen, clear typography, whitespace, severity colors, readable cards/tables, and responsive layout
 - first viewport shows decision, top findings, patch status, and next action
 - visual system map from inputs to user-facing output
 - ranked findings board with severity, file/function, impact, fix, and test

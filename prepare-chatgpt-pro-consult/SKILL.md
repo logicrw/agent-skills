@@ -158,7 +158,7 @@ Build one zip named `{project}-consult-YYYYMMDD.zip`:
 
 For complex product, architecture, or code-review consults, require ChatGPT Pro to produce a standalone `review.html` companion artifact in addition to the Markdown/report output. The HTML is for fast reading and sharing; it does not replace patches, tests, Markdown findings, or verification evidence.
 
-Templates: `templates/README-template.md`, `templates/HOW-TO-WORK-template.md`, `templates/GOAL-template.md`, `templates/CHECKLIST-template.md`, `templates/PROGRESS-template.md`, and `templates/EXPERIMENTS-template.md`. Keep in English. Never localize.
+Templates: `templates/README-template.md`, `templates/HOW-TO-WORK-template.md`, `templates/GOAL-template.md`, `templates/CHECKLIST-template.md`, `templates/PROGRESS-template.md`, and `templates/EXPERIMENTS-template.md`. Keep the template files in English. Do not confuse template language with output language: the generated consult instructions must explicitly require the user's preferred language for user-facing reports and HTML.
 
 ## Workflow (6 Phases)
 
@@ -171,6 +171,7 @@ Collect before writing anything:
 - **What's been tried** — every approach the current agent attempted, with exact reasoning for why each failed. This prevents ChatGPT from repeating dead ends.
 - **Hard constraints** — dependency versions, deployment environment, time/budget limits, interfaces that cannot change, red lines
 - **Desired output format** — patches? architecture doc? comparison table? roadmap? Be explicit.
+- **Output language** — default to the user's working language for reports and HTML. If the user is writing in Chinese, require Chinese output.
 - **Acceptance checks** — convert vague goals into concrete pass/fail criteria
 - **Goal score** — define what numeric/checklist state means complete
 - **Feedback loop** — identify the fastest valid command, probe, fixture, or checklist the remote model can use after every change
@@ -225,6 +226,7 @@ For broad redesign, product-quality, architecture-quality, or "make it actually 
    - Patch format, branch/commit expectations, tests, rollback, and acceptance checks
    - If the remote model cannot edit the repo, require unified diffs that pass `git apply --check`
    - For complex consults, require a standalone `review.html` companion artifact with visual summary, code/data-flow diagram, ranked findings, patch plan, risk matrix, and verification checklist
+   - Require the Markdown report and HTML to use the user's preferred language, while keeping code identifiers, paths, commands, commit SHAs, API names, and diff headers unchanged
    - For long-run goals, require updated `CHECKLIST.md`, `PROGRESS.md`, and `EXPERIMENTS.md` content in the final answer when the model cannot write files.
 
 7. **Write CONSTRAINTS.md** (if applicable):
@@ -304,11 +306,14 @@ For any consult that produces more than a short localized patch, require a singl
 The HTML artifact must be:
 
 - standalone: inline CSS and SVG, no remote assets, no build step
+- written in the user's preferred language for all explanatory text; if the user uses Chinese, the HTML must be Chinese except code/path/command literals
+- visually designed, not a raw Markdown dump: clear typography, spacing, section hierarchy, severity colors, cards/tables where they improve scanning, and a restrained professional palette
 - safe to share: no secrets, tokens, private local paths, or unnecessary user-identifying details
 - scan-first: first viewport shows the current decision, top findings, patch status, and next action
 - evidence-linked: every visual claim links to or names the source file/function/command
 - responsive: readable on desktop and mobile
 - printable enough for leadership or PR review
+- readable without translation: avoid English-only headings such as "Findings" or "Patch Plan" when the user's language is Chinese
 - secondary to code: it may visualize the patch plan, but it must not replace diffs, tests, or verification commands
 
 Strong default sections:
