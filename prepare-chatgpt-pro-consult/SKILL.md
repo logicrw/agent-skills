@@ -24,10 +24,54 @@ The consult should force ChatGPT Pro to:
 6. Provide SQL/probes/commands for validating claims against local data when the remote model cannot access runtime state.
 7. Self-critique the chosen plan before finalizing it.
 8. Deliver concrete implementation artifacts: either a branch/commit/PR draft when it can write the repo, or `git apply --check`-able unified diffs when it cannot.
+9. Deliver a visual HTML companion artifact for complex reviews, so the user can scan architecture, findings, patch plan, and risks faster than in a long Markdown report.
 
 Do not accept a final ChatGPT Pro deliverable that is only a report when the user's real goal requires implementation. Require at least the first low-risk patch to be concrete code with tests and rollback.
 
 For complex consults, borrow the HeavySkill pattern: ask for several independent reasoning trajectories, then a deliberate synthesis. Use different lenses such as product/user workflow, architecture/data flow, implementation/testability, and adversarial risk. The synthesis must critique the lanes; it must not simply vote or concatenate them.
+
+## Lessons from Multi-Round Code Consults
+
+When a ChatGPT Pro consult runs across several rounds, make each round narrower and more evidence-rich than the last. The highest-yield loop is:
+
+1. Send a constraint-rich prompt with baseline SHA, red lines, required files, output format, and patch contract.
+2. Locally apply or reconcile the returned patch.
+3. Run the exact tests, smoke checks, runtime probes, and `git diff --check`.
+4. Send ChatGPT Pro the new SHA, the local verification output, rejected ideas, any failed hunks, and the next specific question.
+5. Ask for one more low-risk patch or one ranked review pass, not a broad re-review of everything.
+
+Do not let later rounds become vague. Every follow-up prompt should include:
+
+- current code SHA and whether earlier patches were accepted, modified, or rejected
+- changed files since the previous round
+- fresh verification evidence, including failed commands and relevant stdout/stderr
+- one current product or engineering bottleneck
+- explicit red lines that still hold
+- required deliverable: branch/commit/PR draft or apply-checkable diff
+
+Prefer "review this exact new surface" over "review the repo again". For example: "review market/topic grouping and feedback calibration for operator misranking risks" is stronger than "find more improvements".
+
+## Quality Bar for Useful ChatGPT Pro Output
+
+Reject or iterate any answer that fails these checks:
+
+- **Specificity**: findings cite files, functions, fields, tables, and user-facing surfaces.
+- **Causality**: each issue explains how the current code causes a user-visible failure, not just that it is inelegant.
+- **Patchability**: at least one recommendation is delivered as code with tests, not only a plan.
+- **Verification**: every "passed" claim includes the command, baseline/current SHA, and enough output to replay locally.
+- **Boundary control**: the patch does not cross red lines such as changing readiness gates, live trading semantics, security posture, or source-of-truth contracts.
+- **Rollback**: implementation notes say how to undo the change cleanly.
+- **User value**: product improvements map to a concrete review surface, workflow, dashboard, message, or operator decision.
+
+When ChatGPT Pro gives many ideas, force a triage ladder:
+
+1. Must-fix correctness bugs
+2. Misleading user-facing behavior
+3. Missing tests around already-changed behavior
+4. Low-risk product/readability improvements
+5. Larger architecture work for a later PR
+
+The first accepted patch should usually come from categories 1-4. Do not let category 5 block small shippable improvements.
 
 ## ChatGPT Pro Sandbox Capabilities (Verified 2026-04)
 
@@ -71,6 +115,8 @@ Build one zip named `{project}-consult-YYYYMMDD.zip`:
 └── code/                  # relevant source files or repomix bundle
     └── code-bundle.xml
 ```
+
+For complex product, architecture, or code-review consults, require ChatGPT Pro to produce a standalone `review.html` companion artifact in addition to the Markdown/report output. The HTML is for fast reading and sharing; it does not replace patches, tests, Markdown findings, or verification evidence.
 
 Templates: `templates/README-template.md` and `templates/HOW-TO-WORK-template.md`. Keep in English. Never localize.
 
@@ -129,6 +175,7 @@ For broad redesign, product-quality, architecture-quality, or "make it actually 
    - Independent analysis lanes and synthesis requirements for complex consults
    - Patch format, branch/commit expectations, tests, rollback, and acceptance checks
    - If the remote model cannot edit the repo, require unified diffs that pass `git apply --check`
+   - For complex consults, require a standalone `review.html` companion artifact with visual summary, code/data-flow diagram, ranked findings, patch plan, risk matrix, and verification checklist
 
 6. **Write CONSTRAINTS.md** (if applicable):
    - Dependency versions, runtime environment, budget, red lines, stable interfaces
@@ -194,6 +241,32 @@ Never apply v1 directly. The reviewer (you or another agent) must:
 
 Return the review report to the **same** ChatGPT Pro conversation — context is expensive, do not start a new one. Require a revised package against the current SHA. Apply only reviewer-approved patches, one commit per patch, with a clear rollback path.
 
+### Phase 6 — Visual Companion
+
+For any consult that produces more than a short localized patch, require a single-file HTML artifact named `review.html` or `{project}-review.html`.
+
+The HTML artifact must be:
+
+- standalone: inline CSS and SVG, no remote assets, no build step
+- safe to share: no secrets, tokens, private local paths, or unnecessary user-identifying details
+- scan-first: first viewport shows the current decision, top findings, patch status, and next action
+- evidence-linked: every visual claim links to or names the source file/function/command
+- responsive: readable on desktop and mobile
+- printable enough for leadership or PR review
+- secondary to code: it may visualize the patch plan, but it must not replace diffs, tests, or verification commands
+
+Strong default sections:
+
+- Executive strip: baseline SHA, current SHA, access status, branch/patch status, verification status
+- System map: SVG or HTML flow from input data to user-facing output
+- Findings board: ranked cards colored by severity, each with file/function, impact, fix, and test
+- Patch plan: PR-sized steps with changed files, feature flags, rollback, and acceptance checks
+- Risk matrix: what can break, blast radius, detection probe, fallback
+- Verification console: exact commands and summarized outputs
+- Copy-next-prompt button: exports a concise follow-up prompt for the same ChatGPT Pro thread
+
+If ChatGPT Pro cannot write files, ask it to output the HTML as a fenced `html` block after the Markdown report. The local agent can save it as an artifact.
+
 ## Anti-Baseline-Drift
 
 Every patch must start with:
@@ -253,6 +326,7 @@ Tell ChatGPT what to produce in PROBLEM.md:
   6. SQL/probe validation plan
   7. self-critique and tradeoff reconciliation
   8. concrete patch delivery
+  9. standalone HTML companion artifact for fast scan and sharing
 
 For deep product/system redesign, require the first implementation patch to be code, not pseudocode. A good first patch is usually a low-risk deterministic layer behind a feature flag or shadow path, plus tests and one user-facing readout.
 

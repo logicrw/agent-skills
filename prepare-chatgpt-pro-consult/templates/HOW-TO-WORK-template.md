@@ -101,6 +101,7 @@ Run this workflow:
 6. Provide SQL/probes/commands for validating claims against local data when runtime state is unavailable.
 7. Self-critique your plan before finalizing it.
 8. Deliver concrete implementation artifacts.
+9. Deliver a visual HTML companion artifact for complex reviews.
 
 Independent lanes:
 
@@ -117,6 +118,22 @@ Implementation delivery modes:
 - If you cannot write the repository, output unified diffs. Each diff must be checkable with `git apply --check` and must include tests, verification commands, runtime-vs-shadow behavior, migration/backfill notes, and rollback.
 
 Do NOT provide only pseudocode or an implementation plan when code was requested.
+
+## 9. HTML companion artifact
+
+For complex reviews, produce a standalone `review.html` after the normal Markdown/report output.
+
+Requirements:
+- single file, inline CSS and SVG, no remote assets, no build step
+- first viewport shows decision, top findings, patch status, and next action
+- visual system map from inputs to user-facing output
+- ranked findings board with severity, file/function, impact, fix, and test
+- patch plan with changed files, feature flags, rollback, and acceptance checks
+- risk matrix with blast radius, detection probe, and fallback
+- verification console with exact commands and summarized outputs
+- copy-next-prompt button that exports a concise follow-up prompt for this same ChatGPT Pro thread
+
+The HTML artifact is for scanability and sharing. It does not replace patches, tests, Markdown findings, or verification evidence.
 
 ## One-line principle
 
