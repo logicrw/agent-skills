@@ -1,0 +1,4 @@
+interface:
+  display_name: "GEB Context Map"
+  short_description: "Context-saving L1/L2/L3 project map workflow for maintained codebases"
+  default_prompt: "Map before loading. For maintained codebase work, load only the L1/L2/L3 layer that changes the edit boundary, and sync only changed code facts after structural work."

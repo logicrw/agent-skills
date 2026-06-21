@@ -1,0 +1,23 @@
+name: ai-handoff-pack
+mode: production
+purpose: Compile messy AI chats and project notes into a Markdown handoff pack for the next agent or session.
+inputs:
+  - AI chat exports, Markdown, TXT, PDFs, research notes, project notes.
+  - Existing handoff packs or old wiki/OKF bundles.
+outputs:
+  - Local Markdown handoff pack.
+  - Current state, decisions, open questions, tasks, source index, and entity notes.
+  - Optional OKF-strict bundle when explicitly requested.
+owns:
+  - Extract durable handoff knowledge.
+  - Separate current facts, stale claims, decisions, tasks, and uncertainty.
+  - Maintain source anchors and reading order.
+excludes:
+  - Remote consult packages with baseline, patch queue, or replay contracts.
+  - Raw chat archiving.
+  - Long-term memory writes.
+gates:
+  - Do not ingest everything blindly.
+  - Prefer simple handoff layout by default.
+  - Use OKF strict mode only on request.
+  - Keep output Markdown, source-backed, and easy for another agent to scan.

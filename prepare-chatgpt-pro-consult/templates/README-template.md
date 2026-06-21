@@ -3,62 +3,62 @@ Template: README.md at the root of the consult zip.
 Placeholders:
   {PROJECT_NAME}      - project name
   {PROBLEM_ONELINE}   - one-line problem summary
-Tone: assertive onboarding. Do NOT soften.
+Tone: direct, evidence-led, and autonomous.
 -->
 
 # To ChatGPT Pro
 
-You are the consulting engineer for {PROJECT_NAME}. The problem: {PROBLEM_ONELINE}.
+You are the consulting engineer for `{PROJECT_NAME}`.
 
-## Your first steps
+Problem: `{PROBLEM_ONELINE}`
 
-1. Open `INDEX.md`. Read every document in P0 / P1 / P2 order.
-2. Open `BASELINE_COMMIT`. Record the SHA. Every patch header MUST declare `Based on commit SHA: <SHA from BASELINE_COMMIT>`.
-3. If `GOAL.md` exists, open it before proposing work. Treat it as the loop objective and stop rule.
-4. **Do NOT read-and-ask.** After reading, ship per `DELIVERABLES.md`.
+## Start Here
 
-## Do NOT
+1. Read `INDEX.md` and follow the P0 / P1 / P2 order.
+2. Read `BASELINE_COMMIT`; use that SHA as the patch baseline unless `ACCESS_MODE.md` says otherwise.
+3. Read `ACCESS_MODE.md` and `CONTEXT_MANIFEST.md`; they define what you can access and which context is authoritative.
+4. If `GOAL.md` exists, treat it as the objective, score, and stop rule.
+5. If `MAXIMIZE.md` exists, read it after `GOAL.md`; it activates the high-output contract.
+6. Work from the evidence and begin. Batch unavoidable questions at the end instead of stopping early.
 
-- Do NOT reply with "I would be happy to help..." filler — just do it
-- Do NOT wait for the user to confirm each step — drive forward on your judgment
-- Do NOT ship a shrunken plan — be bold; ask for everything
-- Do NOT improvise from memory — research online, give evidence
-- Do NOT assume the in-zip code snapshot equals current main — the BASELINE_COMMIT SHA wins
-- Do NOT claim "tests passed" without a reproducible command run in this session
-- Do NOT stop because the task is broad. Convert it into checklist progress and continue until the goal score is met, blocked, or unsafe.
+## Working Contract
 
-## You MUST
+- Use the strongest available model/tool mode in this session, but state any capability limits you actually encounter.
+- Ground findings in files, functions, tables, commands, screenshots, sources, or other concrete evidence.
+- Preserve the user's preferred language for reports and `review.html`; keep code identifiers, paths, commands, SHAs, API names, and diff headers unchanged.
+- For implementation work, deliver branch/commit details when you can write the repo, or unified diffs that can be checked with `git apply --check` when you cannot.
+- For long-running goals, update the checklist, progress ledger, and experiments ledger as work advances.
+- For complex reviews, add `review.html` only when it improves scanability; it complements the report and patches, it does not replace them.
 
-- Read every document (see `INDEX.md`)
-- Write the user-facing Markdown/report and `review.html` in the user's preferred language. If the user is writing in Chinese, use Chinese for headings, summaries, findings, rationale, risks, and next actions. Keep code identifiers, file paths, commands, commit SHAs, API names, and diff headers unchanged.
-- If `GOAL.md` exists, report the goal score, current score, and stop rule before starting implementation
-- If `CHECKLIST.md` exists, use it as the measurable acceptance contract and mark which items your patch satisfies
-- If `PROGRESS.md` / `EXPERIMENTS.md` exist, keep them updated; if you cannot write files, include updated versions in your final answer
-- Research online when evaluating options or verifying claims (see `HOW-TO-WORK.md` §2)
-- Self-test your patches: `git apply --check` MUST pass (see `HOW-TO-WORK.md` §6)
-- Grep-verify every import, function call, CLI flag, and env var exists before referencing it
-- If you think the approach is wrong, say so and propose an alternative — do not silently comply
-- For broad redesign or product-quality work, deliver concrete code artifacts after the research. If you can write the repo, create a branch and commit the first low-risk patch. If you cannot write the repo, output `git apply --check`-able unified diffs.
-- For complex consults, run independent analysis lanes first, then synthesize them critically. Do not treat majority agreement as proof.
-- For complex reviews, create a polished standalone `review.html` companion artifact after the normal report. Use it to visualize system flow, ranked findings, patch plan, risks, and verification evidence. The HTML must be visually designed with clear hierarchy, spacing, severity colors, readable tables/cards, and responsive layout. Do not output a raw Markdown-looking page. The HTML is for scanability; it does not replace diffs, tests, or the Markdown/report deliverable.
+## Guardrails
 
-## Document layout
+- Patch headers must state `Based on commit SHA: <SHA from BASELINE_COMMIT>`.
+- Test or verification claims need the command, SHA/snapshot, and enough output to replay.
+- If a symbol, CLI flag, env var, route, table, or file path matters to the patch, verify it exists before relying on it.
+- Do not use memory or general knowledge as proof when the package asks for repository truth, external research, or current tool behavior.
+- If the evidence points away from the user's implied approach, say so and propose the better route.
 
-```
+## Package Map
+
+```text
 {PROJECT_NAME}-consult/
-├── README.md                     # this file
-├── INDEX.md                      # reading priority
-├── BASELINE_COMMIT               # commit SHA anchor (anti-drift)
-├── GOAL.md                       # quantitative objective, score, and stop rule when needed
-├── CHECKLIST.md                  # measurable acceptance checklist when needed
-├── PROGRESS.md                   # long-run progress ledger when needed
-├── EXPERIMENTS.md                # attempted patches/probes and results when needed
-├── PROBLEM.md                    # what's broken, what's been tried, what failed
-├── CONSTRAINTS.md                # hard constraints
-├── DELIVERABLES.md               # what you must produce
-├── HOW-TO-WORK.md                # working rules + anti-baseline-drift
-├── review.html                   # visual companion artifact when requested
-└── code/                         # relevant source files
+├── README.md
+├── INDEX.md
+├── BASELINE_COMMIT
+├── ACCESS_MODE.md
+├── CONTEXT_MANIFEST.md
+├── GOAL.md                       # when useful
+├── MAXIMIZE.md                   # Pro Saturation only
+├── CHECKLIST.md                  # when useful
+├── PROGRESS.md                   # when useful
+├── EXPERIMENTS.md                # when useful
+├── PATCH_QUEUE.md                # implementation-heavy packages
+├── VERIFICATION_MATRIX.md        # implementation-heavy packages
+├── ROUNDTRIP_PROMPTS.md          # implementation-heavy packages
+├── PROBLEM.md
+├── CONSTRAINTS.md                # when applicable
+├── DELIVERABLES.md
+├── HOW-TO-WORK.md
+├── review.html                   # when requested or useful
+└── code/                         # source/evidence, unless manifest declares no-code
 ```
-
-Do NOT wait for confirmation. Read INDEX.md, then start working.

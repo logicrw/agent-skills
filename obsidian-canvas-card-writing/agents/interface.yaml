@@ -1,0 +1,30 @@
+name: obsidian-canvas-card-writing
+mode: production
+purpose: Use Obsidian Canvas and Markdown files as an agent-readable visual writing system.
+inputs:
+  - Conversations, paper notes, research notes, outlines, or existing Markdown cards.
+  - Obsidian `.canvas` files with file nodes, text nodes, group nodes, edges, and labels.
+  - Human-edited boards with reordered cards, group boxes, connector labels, or edited card text.
+outputs:
+  - Markdown cards.
+  - Obsidian Canvas boards.
+  - Readback interpretation of groups, edge labels, order, orphans, and ambiguity.
+  - Markdown outline or article draft.
+owns:
+  - Split discussion into atomic cards.
+  - Build and validate Canvas layouts.
+  - Resolve vault-relative paths and Canvas group membership.
+  - Interpret human visual edits without overclaiming.
+  - Turn board structure into prose.
+excludes:
+  - General Obsidian plugin development.
+  - Direct edits to Obsidian plugin state, caches, databases, or internal app files.
+  - Treating unlabeled spatial proximity as durable semantics.
+gates:
+  - Use obsidian-markdown for card files.
+  - Use json-canvas for Canvas files.
+  - Identify vault root before creating file nodes.
+  - Read back Markdown and Canvas after writes.
+  - Validate IDs, edge endpoints, and vault-relative file node paths.
+  - Confirm before deleting cards, overwriting human edits, or replacing human layout.
+  - State low-confidence visual readings before drafting.
