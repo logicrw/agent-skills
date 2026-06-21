@@ -61,7 +61,7 @@ Before publishing changes:
 
 ```bash
 git diff --check
-rg -n "/Users/|user-home|public-handle|global[.]env|BEGIN .*PRIVATE KEY|sk-[A-Za-z0-9]" -g '!node_modules' -g '!.git' .
+rg -n "/Users/[^/]+|global[.]env|BEGIN .*PRIVATE KEY|sk-[A-Za-z0-9]" -g '!node_modules' -g '!.git' .
 ggshield secret scan path -r -y . --json
 ```
 
