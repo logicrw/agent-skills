@@ -18,7 +18,7 @@ CLI path: bundled Bun script for raw X API workflows.
 
 ## Setup
 
-For the MCP path, install and run Grok MCP Gateway separately, then expose it to your agent as `grok_mcp_gateway`.
+For the MCP path, install and run [Grok MCP Gateway](https://github.com/logicrw/grok-mcp-gateway) separately, then expose it to your agent as `grok_mcp_gateway`.
 
 For the CLI path:
 

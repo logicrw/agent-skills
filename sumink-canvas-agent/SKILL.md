@@ -29,7 +29,7 @@ Sumink Progress
 
 ## 1. Connect
 
-Use global `sumink` when present. Fall back to the app bundle.
+Install Sumink from `https://www.sumink.com/download`. Use global `sumink` when present. Fall back to the app bundle.
 
 ```bash
 if command -v sumink >/dev/null 2>&1; then

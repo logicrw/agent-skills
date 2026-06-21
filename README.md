@@ -30,12 +30,12 @@ If a skill includes `.env.example`, copy it to `.env` locally and fill in your o
 | Skill | One-line use | Extra setup |
 |---|---|---|
 | [ai-handoff-pack](./ai-handoff-pack/) | Turn messy AI chats, notes, and research docs into a compact handoff pack for another agent. | Standalone. Optional: Python 3 for strict OKF validation. |
-| [sumink-canvas-agent](./sumink-canvas-agent/) | Use Sumink as a human-agent visual writing board with cards, sections, connectors, backlinks, and drafts. | Requires Sumink/Summer Ink and its CLI. Optional: `jq`, `qlmanage`. |
-| [shared-memory-skill](./shared-memory-skill/) | Read/write source-backed durable memory through a local Shared Memory MCP server. | Requires Shared Memory at `http://127.0.0.1:local-mcp-endpoint`; diagnostics use `MEMORY_HOME`. |
+| [sumink-canvas-agent](./sumink-canvas-agent/) | Use Sumink as a human-agent visual writing board with cards, sections, connectors, backlinks, and drafts. | Requires [Sumink](https://www.sumink.com/) / [download](https://www.sumink.com/download) and its CLI. Optional: `jq`, `qlmanage`. |
+| [shared-memory-skill](./shared-memory-skill/) | Read/write source-backed durable memory through a local Shared Memory-compatible MCP server. | Requires a local Shared Memory-compatible endpoint at `http://127.0.0.1:local-mcp-endpoint`; official upstream: [Shared Memory](https://example.com/shared-memory-runtime), [Shared Memory MCP docs](https://example.com/shared-memory-mcp). |
 | [prepare-chatgpt-pro-consult](./prepare-chatgpt-pro-consult/) | Package a baseline-controlled consult for ChatGPT Pro or another remote web model. | Standalone. Optional: `repomix`, `zip`, Git. |
 | [bumblebee-inventory-scanner](./bumblebee-inventory-scanner/) | Audit local developer supply-chain inventory with Perplexity Bumblebee. | Requires `bumblebee v0.1.1`; the skill can install it with Go. |
 | [geb-context-map](./geb-context-map/) | Keep large codebase work context-light with L1/L2/L3 maps and focused reads. | Standalone. Optional: Serena/LSP, `ast-grep`, `repomix`. |
-| [x-research-skill](./x-research-skill/) | Research X/Twitter discourse through a local Grok MCP Gateway or optional X API CLI. | Default path requires Grok MCP Gateway at `http://127.0.0.1:9996/mcp`. CLI lane requires Bun and `X_BEARER_TOKEN`. |
+| [x-research-skill](./x-research-skill/) | Research X/Twitter discourse through a local Grok MCP Gateway or optional X API CLI. | Default path requires [Grok MCP Gateway](https://github.com/logicrw/grok-mcp-gateway) at `http://127.0.0.1:9996/mcp`. CLI lane requires Bun and `X_BEARER_TOKEN`. |
 | [obsidian-canvas-card-writing](./obsidian-canvas-card-writing/) | Use Obsidian Canvas as a file-native card writing board and draft from `.canvas` structure. | Requires Obsidian Canvas files plus `obsidian-markdown` and `json-canvas` skills. |
 | [gemini-transcribe](./gemini-transcribe/) | Transcribe or analyze audio/video files with Gemini. | Requires Gemini API credentials. |
 | [video-transcript-downloader](./video-transcript-downloader/) | Download video/audio/subtitles/transcripts from supported sites. | Requires Node dependencies in that folder. |
@@ -49,6 +49,12 @@ If a skill includes `.env.example`, copy it to `.env` locally and fill in your o
 - CLI-backed skills assume the named CLI is on `PATH`, or document their fallback path.
 - Files under `references/` are loaded only when the skill says they are relevant.
 - Files under `scripts/` are helper commands; inspect before running in a new environment.
+
+## MCP Compatibility
+
+`shared-memory-skill` targets a local, source-backed memory workflow built on source-backed MCP tools. It is not a packaged Shared Memory runtime. If you do not already run a compatible local endpoint, start from the official Shared Memory MCP server and adapt the group names, source-provenance policy, and failed-write tooling expected by this skill.
+
+`x-research-skill` targets `grok_mcp_gateway` for X search by default. The gateway is a separate project and must be installed and configured outside this repository.
 
 ## Privacy Rules
 
