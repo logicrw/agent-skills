@@ -1,30 +1,24 @@
-name: obsidian-canvas-card-writing
-mode: production
-purpose: Use Obsidian Canvas and Markdown files as an agent-readable visual writing system.
-inputs:
-  - Conversations, paper notes, research notes, outlines, or existing Markdown cards.
-  - Obsidian `.canvas` files with file nodes, text nodes, group nodes, edges, and labels.
-  - Human-edited boards with reordered cards, group boxes, connector labels, or edited card text.
-outputs:
-  - Markdown cards.
-  - Obsidian Canvas boards.
-  - Readback interpretation of groups, edge labels, order, orphans, and ambiguity.
-  - Markdown outline or article draft.
-owns:
-  - Split discussion into atomic cards.
-  - Build and validate Canvas layouts.
-  - Resolve vault-relative paths and Canvas group membership.
-  - Interpret human visual edits without overclaiming.
-  - Turn board structure into prose.
-excludes:
-  - General Obsidian plugin development.
-  - Direct edits to Obsidian plugin state, caches, databases, or internal app files.
-  - Treating unlabeled spatial proximity as durable semantics.
-gates:
-  - Use obsidian-markdown for card files.
-  - Use json-canvas for Canvas files.
-  - Identify vault root before creating file nodes.
-  - Read back Markdown and Canvas after writes.
-  - Validate IDs, edge endpoints, and vault-relative file node paths.
-  - Confirm before deleting cards, overwriting human edits, or replacing human layout.
-  - State low-confidence visual readings before drafting.
+interface:
+  display_name: "Obsidian Canvas Card Writing"
+  short_description: "Use Obsidian Markdown cards and Canvas maps for visual writing"
+  default_prompt: "Use $obsidian-canvas-card-writing to create, link, group, read back, and draft from Obsidian Markdown cards and Canvas boards."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"

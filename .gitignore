@@ -27,6 +27,7 @@ bun.lockb
 drafts/
 work/
 outputs/
+output/
 reports/
 data/cache/
 *.log

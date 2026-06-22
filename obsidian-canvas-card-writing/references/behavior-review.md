@@ -1,64 +1,38 @@
-# Eval: Obsidian Canvas Card Writing
+# Behavior Review
 
-Use this after edits or when route quality is uncertain.
+Use this after changing the skill or checking whether another agent follows it.
 
-## RED Baseline
+## Routing
 
-Observed with AGPair task `TASK-CA76DA32CFC6` before this skill existed:
+| Prompt | Expected |
+|---|---|
+| "Turn this conversation into Obsidian cards and place them on a Canvas" | use skill |
+| "Read the groups, lines, and card order in this Canvas" | use skill |
+| "I framed several cards together; turn them into paragraph structure" | use skill |
+| "Merge these cards into one argument card" | use skill, confirm before merge |
+| "Draw a generic system flowchart" | use `json-canvas` |
+| "Explain Obsidian wikilink syntax" | use `obsidian-markdown` |
 
-- The agent produced a useful generic model but inspected unrelated repository files instead of staying anchored to the target vault/canvas.
-- It treated some visual details, such as resize and proximity, as stronger intent than the Canvas format can prove.
-- It did not provide a compact, reusable operating checklist for card-first, canvas-second writing.
+## Behavior
 
-## GREEN Scenario
+| Scenario | Pass |
+|---|---|
+| New cards from notes | searches first, writes Markdown cards, then creates file nodes |
+| Existing cards | rereads before edit; preserves wording unless asked to rewrite |
+| Human group box | validates group containment and states confidence |
+| Human labeled edge | maps endpoints and preserves label |
+| Unlabeled proximity | marks low confidence; does not treat as durable meaning |
+| Merge request | rereads both cards, preserves source trails, asks before merging |
+| Delete/archive request | asks first; follows existing vault convention |
+| Draft/output | rereads cards and Canvas; reports source cards, skipped cards, uncertainty |
 
-Positive prompt:
+## Risk Checks
 
-```text
-Create an Obsidian Canvas workflow for turning a research conversation into Markdown cards, letting the human rearrange them, then drafting an article from the board.
-```
-
-Expected behavior:
-
-- Finds or creates a topic folder with `Cards/`, `.canvas`, and draft `.md`.
-- Writes durable ideas as Markdown cards before creating Canvas file nodes.
-- Uses group nodes for paragraph/argument clusters and labeled edges for relations.
-- Parses the Canvas after writing and validates node IDs, edge endpoints, and file paths.
-- Interprets human edits with confidence levels.
-- Treats proximity, unlabeled lines, unlabeled boxes, color, and resize as low-confidence signals.
-- Drafts only after rereading changed cards and reporting draft-changing ambiguity.
-
-## Boundary Scenarios
-
-Use the skill:
-
-```text
-Read this Obsidian .canvas and its Cards folder, infer paragraph groups from labeled boxes and connector labels, then write Draft.md.
-```
-
-Do not use the skill:
-
-```text
-Make a generic flowchart in JSON Canvas for a system architecture.
-```
-
-Expected route: `json-canvas`.
-
-Do not use the skill:
-
-```text
-Explain Obsidian wikilink syntax and callouts.
-```
-
-Expected route: `obsidian-markdown`.
-
-Risk scenario:
-
-```text
-These two cards are close together but not inside a group and their connector has no label. Turn them into a paragraph.
-```
-
-Expected behavior: mark the relation as low confidence and ask if the grouping changes the draft.
+- No vault root: stop before creating cards or file nodes.
+- Dangling edge endpoint: fix or report before drafting.
+- Missing file node target: create the card first or remove the node.
+- Canvas text node with durable meaning: promote it to Markdown before final output.
+- No generic smoke script: Obsidian validation is vault-specific. For real work, parse the target `.canvas`, resolve file nodes, and check edge endpoints.
 
 ## Near Neighbors
 

@@ -1,30 +1,24 @@
-name: sumink-canvas-agent
-mode: production
-purpose: Operate Sumink as an agent-readable visual writing board.
-inputs:
-  - Conversation notes, Markdown, TXT, paper notes, outlines.
-  - Existing Sumink note/canvas IDs.
-  - Human-edited boards with sections, frames, connector labels, reordered cards, or edited text.
-outputs:
-  - Sumink notes and canvases.
-  - Readback evidence.
-  - Relationship map from sections, labels, mentions, backlinks, notes, and order.
-  - Outline or draft when requested.
-  - Optional handoff-pack material when the user wants non-visual continuity.
-owns:
-  - Create notes, canvases, sections, embeds, images, mentions, backlinks, and relationship notes.
-  - Read and interpret human visual edits.
-  - Turn board structure into prose.
-excludes:
-  - Product research without Sumink operation.
-  - Direct database, storage, cache, socket, or internal endpoint writes.
-  - Full drawing automation not exposed by CLI.
-  - Raw canvas JSON as the default project handoff.
-gates:
-  - Check CLI and space.
-  - Load the relevant reference.
-  - Read back every canvas write.
-  - Resolve unknown embed names by ID.
-  - Treat notes, mentions, backlinks, and sections as stronger evidence than position.
-  - State unsupported or UI-only actions plainly.
-  - Run scripts/smoke.sh after Sumink upgrades or skill edits.
+interface:
+  display_name: "Sumink Canvas Agent"
+  short_description: "Operate Sumink cards and canvases for human-agent visual writing"
+  default_prompt: "Use $sumink-canvas-agent to create, edit, relate, read back, and draft from Sumink notes and canvases."
+compatibility:
+  canonical_format: "agent-skills"
+  adapter_targets:
+    - "openai"
+    - "claude"
+    - "generic"
+  activation:
+    mode: "manual"
+    paths: []
+  execution:
+    context: "inline"
+    shell: "bash"
+  trust:
+    source_tier: "local"
+    remote_inline_execution: "forbid"
+    remote_metadata_policy: "allow-metadata-only"
+  degradation:
+    openai: "metadata-adapter"
+    claude: "neutral-source-plus-adapter"
+    generic: "neutral-source"

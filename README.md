@@ -36,6 +36,7 @@ If a skill includes `.env.example`, copy it to `.env` locally and fill in your o
 | [geb-context-map](./geb-context-map/) | Keep large codebase work context-light with L1/L2/L3 maps and focused reads. | Standalone. Optional: Serena/LSP, `ast-grep`, `repomix`. |
 | [x-research-skill](./x-research-skill/) | Research X/Twitter discourse through a local Grok MCP Gateway or optional X API CLI. | Default path requires [Grok MCP Gateway](https://github.com/logicrw/grok-mcp-gateway) at `http://127.0.0.1:9996/mcp`. CLI lane requires Bun and `X_BEARER_TOKEN`. |
 | [obsidian-canvas-card-writing](./obsidian-canvas-card-writing/) | Use Obsidian Canvas as a file-native card writing board and draft from `.canvas` structure. | Requires Obsidian Canvas files plus `obsidian-markdown` and `json-canvas` skills. |
+| [wechat-article](./wechat-article/) | Fetch public WeChat articles and convert them to local Markdown with downloaded images. | Requires Python plus `uv` or `pip install -r requirements.txt`; Camoufox is used as browser fallback. |
 | [gemini-transcribe](./gemini-transcribe/) | Transcribe or analyze audio/video files with Gemini. | Requires Gemini API credentials. |
 | [video-transcript-downloader](./video-transcript-downloader/) | Download video/audio/subtitles/transcripts from supported sites. | Requires Node dependencies in that folder. |
 | [trace-review](./trace-review/) | Review code by tracing execution paths and requiring concrete evidence. | Standalone. |

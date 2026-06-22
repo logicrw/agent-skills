@@ -6,11 +6,11 @@ Use this after changing the skill or checking whether another agent follows it.
 
 | Prompt | Expected |
 |---|---|
-| "把这段论文笔记做成 Sumink 白板卡片" | use skill |
-| "读一下这个 Sumink 画布里的连接线标签" | use skill |
-| "我把几张卡框在一起了, 帮我解释成段落结构" | use skill |
-| "调研 Heptabase 和 Gingko" | do not use unless Sumink operation is requested |
-| "写一篇普通 Markdown 文章" | do not use unless Sumink is involved |
+| "Turn these paper notes into Sumink canvas cards" | use skill |
+| "Read the connector labels on this Sumink canvas" | use skill |
+| "I framed several cards together; explain the paragraph structure" | use skill |
+| "Research Heptabase and Gingko" | do not use unless Sumink operation is requested |
+| "Write a plain Markdown article" | do not use unless Sumink is involved |
 
 ## Behavior
 
@@ -22,6 +22,9 @@ Use this after changing the skill or checking whether another agent follows it.
 | Durable relation | creates relationship note with mentions/backlinks |
 | Image evidence | uses attachment plus caption/OCR note |
 | Unsupported connector creation | refuses to rely on CLI connector; uses relationship note or asks human |
+| Merge request | rereads both notes, preserves source trails, asks before merging |
+| Delete/archive request | asks first; trashes only agent-created temporary cards unless asked otherwise |
+| Draft/output | rereads notes, canvas, sections, backlinks; reports skipped cards and uncertainty |
 | Internal storage temptation | refuses database, Local Storage, socket, or internal endpoint writes |
 
 ## Smoke

@@ -1,6 +1,6 @@
 ---
 name: sumink-canvas-agent
-description: "Use when working with Sumink or Summer Ink canvases for human-agent visual writing: text-to-card boards, human-edited layouts, connector labels, sections, backlinks, attachments, or drafting from board structure."
+description: "Use when working with Sumink or Summer Ink cards and canvases: conversation-to-cards, card creation, card editing, sections, frames, connector labels, mentions, backlinks, relationship notes, attachments, human-edited boards, outlines, drafts, or synthesis from board structure."
 allowed-tools: Bash(sumink *) Bash(node /Applications/Sumink.app/Contents/Resources/cli/cli.cjs *) Bash(jq *) Bash(mktemp *) Bash(qlmanage *)
 metadata:
   sumink-app-version-tested: "0.40.0"
@@ -8,44 +8,65 @@ metadata:
   last-tested: "2026-06-21"
 ---
 
-# Sumink Canvas Agent
+# Sumink Canvas Card Work
 
-IRON LAW: READ BACK EVERY WRITE. A SUMINK COMMAND SUCCEEDING DOES NOT PROVE THE CANVAS KEPT THE STRUCTURE.
+IRON LAW: Read back every write. A Sumink command succeeding does not prove the board kept the intended structure.
 
-Operate Sumink as a shared visual writing desk. The agent writes cards, sections, embeds, links, images, and drafts. The human edits the board visually. The agent reads it back, resolves meaning, and turns it into structure or prose.
+Use this skill to operate Sumink cards safely. The human owns the evolving knowledge system. The agent owns clean card creation, careful edits, explicit relations, reliable readback, and traceable outputs.
 
-## Workflow
+This skill is independent. Do not assume any other app exists unless the user asks for migration or sync.
 
-```text
-Sumink Progress
-- [ ] 1. Connect
-- [ ] 2. Load only the needed reference
-- [ ] 3. Search before creating
-- [ ] 4. Write or update
-- [ ] 5. Read back
-- [ ] 6. Interpret human edits
-- [ ] 7. Report IDs, meaning, limits
-```
+## Work Loop
 
-## 1. Connect
+0. Connect [BLOCKING]
+   - Use global `sumink` when present; fall back to the app bundle.
+   - Check CLI version and active space.
+   - Before mutation, read `references/cli-safety.md`.
+1. Scope
+   - Identify space, target canvas, search terms, output need, and whether the user wants new cards or updates.
+   - Search existing cards before creating. Use IDs when names may collide.
+2. Read
+   - Read target canvas, relevant notes, sections, embeds, connector labels, mentions, and backlinks.
+   - Treat memory of prior layout as stale until readback confirms it.
+3. Distill
+   - Turn input into reusable notes, not a transcript dump.
+   - One card = one idea, question, source, evidence item, method, counterpoint, synthesis, or draft fragment.
+   - Use notes for durable meaning; use canvas nodes for local labels, headings, captions, or instructions.
+4. Operate
+   - Create notes for durable cards.
+   - Embed notes on canvas for visual work.
+   - Use sections for themes, arguments, paragraphs, projects, evidence bundles, or open problems.
+   - Split broad cards. Link only when the relation is explicit or useful.
+   - Delete, merge, archive, or overwrite only after rereading and explicit confirmation.
+5. Relate
+   - Use mentions, backlinks, or relationship notes for durable relations.
+   - Use section labels for groups that should survive readback.
+   - Use human connector labels as readable local relations.
+   - Do not rely on CLI-created connectors for important meaning.
+6. Read Back [REQUIRED]
+   - Read the canvas after every create or append.
+   - Read important notes and backlink lists.
+   - Report unsupported or UI-only actions plainly.
+7. Output
+   - Produce the requested board update, interpretation, outline, draft, memo, plan, book skeleton, or question list.
+   - Return IDs, evidence, cards used, cards skipped, and unresolved ambiguity.
 
-Install Sumink from `https://www.sumink.com/download`. Use global `sumink` when present. Fall back to the app bundle.
+## Connect
 
 ```bash
 if command -v sumink >/dev/null 2>&1; then
   sumink_cli() { sumink "$@"; }
 else
-  sumink_cli() { node /Applications/Sumink.app/Contents/Resources/cli/cli.cjs "$@"; }
+  SUMINK_APP_CLI="${SUMINK_APP_CLI:-/Applications/Sumink.app/Contents/Resources/cli/cli.cjs}"
+  sumink_cli() { node "$SUMINK_APP_CLI" "$@"; }
 fi
 sumink_cli --version
 sumink_cli space list --format json
 ```
 
-Before any mutation, read `references/cli-safety.md`.
-
 If the CLI is not ready, run `sumink_cli launch --format json`. If it still fails, ask the user to open Sumink and enable CLI features. Do not edit app state files.
 
-## 2. Load References
+## References
 
 Load only what the task needs.
 
@@ -58,106 +79,91 @@ Load only what the task needs.
 | Evidence for local behavior | `references/verified-behavior.md` |
 | Failed writes or odd CLI behavior | `references/troubleshooting.md` |
 
-## 3. Search Before Creating
+## Commands
 
 ```bash
 sumink_cli card search "<query>" --format json
-```
-
-Use IDs, not names, when names may collide.
-
-## 4. Choose The Object
-
-| Intent | Use |
-|---|---|
-| Durable idea, claim, source, evidence, paragraph unit | note |
-| Local label, heading, instruction, caption | canvas node |
-| Place an existing card | `embed_note` |
-| Chapter or subtopic drill-down | `embed_canvas` |
-| Same paragraph, same argument, same evidence bundle | `section name="..."` |
-| Relationship that must survive export | relationship note with `<mention .../>` |
-| Human-readable relation direction | human-drawn connector label |
-| Figure, screenshot, generated diagram | attachment plus `canvas_image` plus caption |
-
-Do not rely on CLI-created connectors. If meaning matters, add a section label or relationship note.
-
-## 5. Read Back
-
-After every canvas create/append:
-
-```bash
 sumink_cli canvas read <canvasId> --format json
-```
-
-For important cards:
-
-```bash
 sumink_cli backlink list <cardId> --format json
 ```
 
+Use `sumink --help`; `sumink help` is invalid.
+
+## Operations
+
+| Task | Rule |
+|---|---|
+| Create | search first; create note; embed on canvas when visual work is needed |
+| Edit | reread note; preserve user wording unless asked to rewrite |
+| Link | use mention/backlink or relationship note for durable meaning |
+| Group | use named section for theme, argument, paragraph, project, evidence bundle, or open problem |
+| Connect | rely on readback connector labels; otherwise use relationship notes |
+| Merge | confirm; preserve source trails; do not silently discard disagreement |
+| Archive | use the user's existing convention; otherwise ask |
+| Delete/trash | confirm; trash only agent-created temporary cards unless asked otherwise |
+| Draft | reread notes, canvas, sections, and backlinks; state skipped cards and uncertainty |
+
+## Object Map
+
+| Need | Use |
+|---|---|
+| durable thought | note |
+| source record | note or link |
+| visual placement | embedded note |
+| theme or argument | section |
+| durable relation | relationship note, mention, backlink |
+| local visual relation | labeled connector |
+| chapter or subtopic | nested canvas |
+| figure or screenshot | attachment image plus caption |
+
+## Readback
+
 Interpret by evidence strength:
 
-1. relationship notes, mentions, backlinks
-2. `canvas_section name="..."` with child embeds
-3. labeled `canvas_connector`
+1. note text, relationship notes, mentions, backlinks
+2. named sections with child embeds
+3. labeled connectors
 4. nearby explanatory nodes
 5. spatial order or proximity
 
-If sources conflict, report the conflict and ask which one controls the draft.
+When sources conflict, prefer note text, mentions, backlinks, and section labels over position. Ask only if the conflict changes the requested output.
 
-## 6. Human Collaboration
+Core readings: section means "these belong together"; connector label means relation or transition; card edit supersedes earlier agent text; proximity is weak unless backed by label, section, mention, backlink, or relationship note.
 
-Human owns fast visual intent: drag, frame, group, label, connect, reorder, edit by sight. Agent owns durable structure: cards, sections, mentions, backlinks, relationship notes, readback, and prose.
+## Synthesis
 
-For human-edited boards, load `references/human-collaboration.md`. State only draft-changing uncertainty; do not ask about every small placement choice.
+Order material by: explicit section or user order, relationship notes and backlinks, section membership, labeled connector direction, visual row or column order, then proximity.
 
-Core readings: frame/section means "these belong together"; section label means paragraph or argument role; connector label means relation or transition; card edit supersedes earlier agent text; proximity is weak unless backed by label, section, or relationship note.
-
-## 7. Deliver
-
-Return:
-
-- canvas name and ID
-- important note/card IDs
-- created or updated objects
-- readback evidence
-- interpretation of sections, connectors, mentions, backlinks, and order
-- UI-only or human-assisted steps still needed
-- temporary test cards kept or trashed
-
-If the user wants a non-visual handoff, export the board interpretation with `ai-handoff-pack`: current state, decisions, open questions, tasks, source anchors, and entity notes. Do not export raw canvas JSON as the handoff.
-
-If the user wants an article, draft from strongest structure first: relationship notes and backlinks, then sections, then labeled connectors, then nearby explanatory nodes, then visual order. Preserve unresolved ambiguity as comments or questions rather than silently choosing.
-
-## Maintenance
-
-After Sumink upgrades or skill edits:
-
-```bash
-cd <skill-root>
-bash scripts/smoke.sh
-```
-
-For behavior review, use `references/behavior-review.md`.
+Map sections to headings, claims, themes, or project stages. Use notes as material. Use relationship notes as logic. Use connector labels as transitions. Preserve low-confidence visual readings as questions or comments.
 
 ## Do Not
 
 - Do not write Sumink database, Local Storage, cache, sockets, or internal endpoints.
-- Do not claim a connector, section, image, or embed exists unless readback shows it.
+- Do not claim a section, connector, image, embed, mention, or backlink exists unless readback shows it.
 - Do not treat x/y position alone as final meaning.
-- Do not infer unlabeled connectors or boxes.
+- Do not infer strong meaning from unlabeled connectors, unlabeled boxes, color, or resize.
 - Do not use `canvas append` for precise layout repair.
-- Do not leave important relations only in visuals; add a relationship note.
+- Do not leave important relations only in visuals.
+- Do not turn transcripts into exhaustive card dumps.
 - Do not make every sentence a permanent card.
+- Do not sync or mirror to another app unless the user explicitly asks.
 
-## Checklist
+## Checks
 
 - [ ] CLI and active space checked.
 - [ ] Required reference loaded.
 - [ ] Existing cards searched.
 - [ ] Canvas writes read back.
 - [ ] IDs captured.
-- [ ] Groups backed by `canvas_section` or marked as inference.
-- [ ] Connectors backed by `canvas_connector label=...`.
-- [ ] Durable relations backed by notes, mentions, backlinks, or section labels.
+- [ ] Durable relations backed by notes, mentions, backlinks, sections, or connector labels.
 - [ ] Unsupported actions named plainly.
+- [ ] Output names source cards, skipped cards, and unresolved ambiguity.
+
+After Sumink upgrades or skill edits:
+
+```bash
+cd <path-to-skill>/sumink-canvas-agent
+bash scripts/smoke.sh
+```
+
+For behavior review, use `references/behavior-review.md`.
