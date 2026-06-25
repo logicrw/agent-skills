@@ -2,34 +2,33 @@
 name: x-research-skill
 description: >
   Use when researching X/Twitter discourse, community reactions, launch
-  chatter, dev opinions, source discovery, or raw X API workflows via local
-  Grok MCP Gateway or bundled CLI.
+  chatter, dev opinions, or source discovery via local Grok MCP Gateway.
 ---
 
 # X Research
+
+IRON LAW: X is signal, not source of truth. Verify primary sources before stating facts.
 
 Use X for real-time perspectives, claims, reactions, and source discovery. Do not treat X discourse as primary truth. Verify linked docs, repos, papers, announcements, filings, or screenshots before presenting factual claims.
 
 ## Default Path
 
-Use the local MCP gateway for ordinary X search:
+Use the local MCP gateway for ordinary X retrieval:
 
 - Server: `grok_mcp_gateway`
 - Endpoint: `http://127.0.0.1:9996/mcp`
-- Tools: `x_search`, `x_posts`, `x_latest_posts`
+- Tool: `x_retrieve`
 
 Always pass explicit `from_date` and `to_date` for "today", "latest", "this week", "last month", or any time-sensitive request.
 
-Load `references/mcp-gateway.md` for tool selection, query patterns, CLI lane, and examples.
+Load `references/mcp-gateway.md` for `x_retrieve` query patterns and examples.
 
 ## Tool Choice
 
-- Use `x_search` for open-ended discourse search.
-- Use `x_posts` for handles, counts, date ranges, sort, replies/reposts, or engagement filters.
-- Use `x_latest_posts` only for recent posts from one handle.
-- Use the bundled CLI only when the user needs raw API-shaped workflows: profile, tweet, thread, saved output, watchlist, advanced operators, or explicit "x-research CLI".
+- Use `x_retrieve` for open-ended discourse search, structured posts, source discovery, reaction tracking, and latest posts from handles.
+- For direct tweet URLs or IDs, pass the full links or IDs in `query`; add `handles`, `from_date`, `to_date`, or `sort` only when they narrow the request.
 
-The CLI is not a fallback for failed MCP calls.
+There is no alternate retrieval fallback in this skill. If `x_retrieve` is reported as not enabled, treat it as an MCP client configuration problem and report it directly instead of changing arguments or switching tools.
 
 ## Research Loop
 
@@ -61,8 +60,9 @@ For latest-post tasks, give a compact list with author, date, text summary, metr
 
 ## Failure Handling
 
-- Too noisy: add `-is:reply`, narrow terms, use handles, sort by likes.
+- Too noisy: add `-is:reply`, narrow terms, use handles, use `sort: relevance` or `best_effort_filters`.
 - Too few results: broaden with `OR`, remove filters, expand date range.
 - Stale results: pass exact `from_date` / `to_date`.
-- Tool rejects arguments: switch to the tool that owns that parameter.
+- Tool rejects arguments: fix the `x_retrieve` arguments against the schema.
+- Tool is not enabled: report MCP client config/policy mismatch; do not retry with argument tweaks.
 - X-only evidence: say it is discourse/signal, not confirmed fact.

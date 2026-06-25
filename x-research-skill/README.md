@@ -8,26 +8,20 @@ Default path: local Grok MCP Gateway.
 
 - MCP server name: `grok_mcp_gateway`
 - Default endpoint: `http://127.0.0.1:9996/mcp`
-- Tools: `x_search`, `x_posts`, `x_latest_posts`
+- Tool: `x_retrieve`
 
-CLI path: bundled Bun script for raw X API workflows.
-
-- Requires Bun.
-- Requires `X_BEARER_TOKEN` in the environment or local `.env`.
-- Read-only. It does not post, like, follow, or manage accounts.
+No alternate X retrieval path is exposed by this skill. Do not look for
+separate credentials or another local retrieval path.
 
 ## Setup
 
 For the MCP path, install and run [Grok MCP Gateway](https://github.com/logicrw/grok-mcp-gateway) separately, then expose it to your agent as `grok_mcp_gateway`.
 
-For the CLI path:
-
-```bash
-cp .env.example .env
-$EDITOR .env
-bun run x-search.ts search "AI agents MCP" --quick
-```
+If the MCP tool is not enabled, fix the client MCP configuration instead of
+falling back to another X retrieval path.
 
 ## Security
 
-Do not put bearer tokens directly in commands. Keep `.env` local and uncommitted. Treat X discourse as signal, not primary evidence; verify linked docs, repos, papers, announcements, filings, or screenshots before presenting factual claims.
+Do not add separate X credentials to this skill. Treat X discourse as signal,
+not primary evidence; verify linked docs, repos, papers, announcements,
+filings, or screenshots before presenting factual claims.
